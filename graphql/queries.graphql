@@ -1,0 +1,10 @@
+query GetTodaysReadingByLevel($level: Int!) {
+  getTodaysReadingByLevel(level: $level) {
+    content
+    createdAt
+    from
+    id
+    level
+    topic
+  }
+}

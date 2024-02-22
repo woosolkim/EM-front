@@ -3,14 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "gen": "graphql-codegen --require dotenv/config --config ./codegen.ts",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
+    "@apollo/client": "latest",
+    "@apollo/experimental-nextjs-app-support": "^0.8.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
+    "graphql": "^16.8.1",
     "lucide-react": "^0.336.0",
     "next": "14.1.0",
     "react": "^18",
@@ -19,6 +23,7 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.2",
     "@next/eslint-plugin-next": "^14.1.0",
     "@types/node": "^20",
     "@types/react": "^18",
@@ -26,6 +31,7 @@
     "@typescript-eslint/eslint-plugin": "^7.0.2",
     "autoprefixer": "^10.0.1",
     "bun-types": "^1.0.28",
+    "date-fns": "^3.3.1",
     "eslint": "^8",
     "eslint-config-next": "14.1.0",
     "eslint-config-prettier": "^9.1.0",
