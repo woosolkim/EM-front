@@ -1,12 +1,13 @@
 import { GetTodaysReadingByLevelDocument } from "@/graphql/types/graphql";
 import { getClient } from "@/lib/apollo-client/client";
+import { TextBlocker } from "../components/text-blocker";
 import { format } from "date-fns";
 
 export default async function Home() {
   const { data } = await getClient().query({
     query: GetTodaysReadingByLevelDocument,
     variables: {
-      level: 5,
+      level: 2,
     },
   });
 
@@ -17,10 +18,11 @@ export default async function Home() {
       <div>
         {reads.map(read => {
           const date = format(Number(read.createdAt), "yyyy-MM-dd");
+
           return (
-            <div className="w-full border mb-2">
+            <div key={read.id} className="w-full border mb-2">
               <h1>{date}</h1>
-              <p>{read.content}</p>
+              <TextBlocker text={read.content} id={read.id} />
             </div>
           );
         })}
