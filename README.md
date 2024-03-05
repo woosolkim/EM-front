@@ -3,7 +3,7 @@
 ### path = /create/{topic}/{level}
 
 <img 
-width="480"
+width="520"
 alt="create somting to read img"
 src="https://github.com/woosolkim/EM-front/assets/95672170/ec973e8c-fe61-492a-ad4b-b0602f35e015">
 
@@ -15,7 +15,7 @@ src="https://github.com/woosolkim/EM-front/assets/95672170/ec973e8c-fe61-492a-ad
 ### path = /read/{level}
 
 <img
-width="480"
+width="520"
 alt="test img"
 src="https://github.com/woosolkim/EM-front/assets/95672170/8ff9b359-f501-4f3e-8ebf-19baf52b87d9">
 
