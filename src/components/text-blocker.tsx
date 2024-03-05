@@ -50,7 +50,6 @@ const BlockableWord = ({
   return (
     <>
       <Text
-        // onClick={toggleBlock}
         size="17_regular"
         className={cn(
           "mr-[4px]",
@@ -64,7 +63,7 @@ const BlockableWord = ({
             className={`max-w-20`}
             onSubmit={(e: FormEvent) => {
               e.preventDefault();
-              if (input === word) {
+              if (input.toLocaleLowerCase() === word.toLocaleLowerCase()) {
                 setCorrect(true);
                 toggleBlock();
               } else {
@@ -182,7 +181,7 @@ export function TextBlocker({ id, text }: TextBlockerProps) {
           fontSize="15_semibold"
           variant="skyblue"
         >
-          {hideWords && hiddenWords.length && "종료"}
+          {hideWords && !!hiddenWords.length && "종료"}
           {!hideWords && !testEnd && "시험"}
           {!hideWords && testEnd && "재시험"}
         </Button>
