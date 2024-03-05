@@ -1,8 +1,12 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { FormEvent, useEffect, useMemo, useState } from "react";
 import { getCookie, setCookie } from "cookies-next";
+import { Button } from "@/components/ui/button";
+import { Text } from "@/components/ui/text";
+import Timer from "./timer";
+import { Input } from "@/components/ui/input";
 
 type TextBlockerProps = {
   id: number;
@@ -15,31 +19,82 @@ interface BlockableWordProps {
   toggleBlock: () => void;
 }
 
+/* eslint-disable no-useless-escape */
+const SPECIAL_CHARS_PATTERN = /[\s,.!?;:'"(){}[\]<>@#$%^&*~`\/\\+=_-]/;
+
 const BlockableWord = ({
   word,
   isBlocked,
   toggleBlock,
 }: BlockableWordProps) => {
+  const [input, setInput] = useState("");
+  const [wrong, setWrong] = useState(false);
+  const [correct, setCorrect] = useState(false);
+
+  useEffect(() => {
+    if (isBlocked) {
+      setInput("");
+    }
+  }, [isBlocked]);
+
+  useEffect(() => {
+    if (wrong) {
+      setTimeout(() => {
+        setWrong(false);
+      }, 300);
+    }
+  }, [wrong]);
+
   return (
-    <span onClick={toggleBlock} className={cn("mr-[5px] cursor-pointer")}>
-      {isBlocked ? (
-        <div className="flex flex-row">
-          {Array.from({ length: word.length }, (_, index) => (
-            <span
-              key={index}
-              className="bg-gray-300 w-2 h-6 border-r border-black"
+    <>
+      <Text
+        // onClick={toggleBlock}
+        size="17_regular"
+        className={cn(
+          "mr-[4px]",
+          isBlocked && "cursor-pointer",
+          correct && "text-green-600 font-bold",
+        )}
+      >
+        {isBlocked && !correct && (
+          <form
+            className={`max-w-20`}
+            onSubmit={(e: FormEvent) => {
+              e.preventDefault();
+              if (input === word) {
+                setCorrect(true);
+                toggleBlock();
+              } else {
+                setWrong(true);
+                setInput("");
+              }
+            }}
+          >
+            <Input
+              className={cn(
+                `px-1 py-1 h-6 flex items-center justify-center`,
+                wrong && " animate-ping focus-visible:ring-red-600",
+              )}
+              value={input}
+              type="text"
+              onChange={e => setInput(e.target.value)}
             />
-          ))}
-        </div>
-      ) : (
-        word
+          </form>
+        )}
+
+        {(!isBlocked || correct) && word}
+      </Text>
+      {word.match(/\./) && (
+        <>
+          <div className="w-full h-4" />
+        </>
       )}
-    </span>
+    </>
   );
 };
 
 export function TextBlocker({ id, text }: TextBlockerProps) {
-  const [blockSwitch, setBlockSwitch] = useState(false);
+  const [hideWords, setHideWords] = useState(false);
   const [blocked, setBlocked] = useState<number[]>([]);
 
   // 모든 단어를 분리하고 4자 이상인 단어의 인덱스를 찾음
@@ -47,7 +102,8 @@ export function TextBlocker({ id, text }: TextBlockerProps) {
 
   const longWordIndices = useMemo(() => {
     return words.reduce((acc: number[], word, index) => {
-      if (word.length >= 4) acc.push(index);
+      if (word.length >= 4 && !SPECIAL_CHARS_PATTERN.test(word))
+        acc.push(index);
       return acc;
     }, []);
   }, [words]);
@@ -58,22 +114,22 @@ export function TextBlocker({ id, text }: TextBlockerProps) {
     sameSite: "lax",
   });
 
-  const countToBlock = Math.ceil(longWordIndices.length * 0.1); // 블록할 단어 수
-
-  const shuffled = useMemo(() => {
-    return longWordIndices.sort(() => 0.5 - Math.random());
+  const countToBlock = useMemo(() => {
+    return Math.ceil(longWordIndices.length * 0.1); // 블록할 단어 수
   }, [longWordIndices]);
 
-  const selected = useMemo(() => {
-    return shuffled.slice(0, countToBlock);
-  }, [shuffled, countToBlock]);
+  const shuffledAndSelected = useMemo(() => {
+    return longWordIndices
+      .sort(() => 0.5 - Math.random())
+      .slice(0, countToBlock);
+  }, [longWordIndices, countToBlock]);
 
   useEffect(() => {
     if (cookie) {
       setBlocked(cookie.split(",").map(Number));
     } else {
-      setBlocked(selected);
-      setCookie(`read-${id}`, selected, {
+      setBlocked(shuffledAndSelected);
+      setCookie(`read-${id}`, shuffledAndSelected, {
         maxAge: 60 * 60 * 24 * 1,
         path: "/",
         secure: true,
@@ -93,25 +149,21 @@ export function TextBlocker({ id, text }: TextBlockerProps) {
   }, []);
 
   const hiddenWords = useMemo(() => {
-    return words.filter((_, index) => blocked.includes(index));
+    return words
+      .filter((_, index) => blocked.includes(index))
+      .sort(() => 0.5 - Math.random());
   }, [blocked, words]);
 
   return (
-    <div>
-      <button
-        className="px-4 py-3 rounded-md bg-green-800 text-lime-400"
-        onClick={() => setBlockSwitch(!blockSwitch)}
-      >
-        감추기
-      </button>
-      <div className="flex flex-row flex-wrap">
+    <div className="flex flex-col items-center justify-center gap-3">
+      <div className="flex flex-row flex-wrap bg-gray-200 p-4 items-center">
         {words.map((word, index) => (
           <BlockableWord
             key={`${word}-${index}`}
             word={word}
-            isBlocked={blockSwitch ? blocked.includes(index) : false}
+            isBlocked={hideWords ? blocked.includes(index) : false}
             toggleBlock={() => {
-              if (blockSwitch) {
+              if (hideWords) {
                 toggleBlock(index);
               }
             }}
@@ -119,13 +171,33 @@ export function TextBlocker({ id, text }: TextBlockerProps) {
         ))}
       </div>
 
-      <div className="mt-10 flex flex-col flex-wrap gap-2 items-center justify-center">
-        {hiddenWords.map((word, index) => (
-          <span key={index} className="border border-black p-2">
-            {word}
-          </span>
-        ))}
+      <div className="w-full flex items-center justify-center">
+        <Button
+          onClick={() => setHideWords(!hideWords)}
+          fontSize="15_semibold"
+          variant="orange"
+        >
+          {hideWords && hiddenWords.length ? "종료" : "시험"}
+        </Button>
       </div>
+
+      {hideWords && (
+        <>
+          <Timer />
+          <div className="flex flex-row flex-wrap gap-2 items-center justify-center">
+            {hiddenWords.map((word, index) => (
+              <Button
+                key={`${word}-${index}`}
+                variant="outline"
+                className="text-gray-600 text-white"
+                onClick={() => toggleBlock(words.indexOf(word))}
+              >
+                {word}
+              </Button>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }
