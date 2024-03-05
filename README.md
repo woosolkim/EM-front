@@ -1,6 +1,6 @@
 ## 1. Create something to read with difficulty and topics
 
-### /create/{topic}/{level}
+### path = /create/{topic}/{level}
 
 <img 
 alt="create somting to read img"
@@ -11,13 +11,11 @@ src="https://github.com/woosolkim/EM-front/assets/95672170/ec973e8c-fe61-492a-ad
 
 ## 2. Read well and fill in the blanks
 
-### /read/{level}
+### path = /read/{level}
 
 <img
 alt="test img"
-src="https://github.com/woosolkim/EM-front/assets/95672170/8ff9b359-f501-4f3e-8ebf-19baf52b87d9"
-
->
+src="https://github.com/woosolkim/EM-front/assets/95672170/8ff9b359-f501-4f3e-8ebf-19baf52b87d9">
 
 - Repeat until you can read all English well.
 

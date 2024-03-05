@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "gen": "graphql-codegen --require dotenv/config --config ./codegen.ts",
+    "predev": "bun gen",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
