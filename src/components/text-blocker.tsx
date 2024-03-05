@@ -16,6 +16,7 @@ type TextBlockerProps = {
 interface BlockableWordProps {
   word: string;
   isBlocked: boolean;
+  isTargetWord: boolean;
   toggleBlock: () => void;
 }
 
@@ -25,6 +26,7 @@ const SPECIAL_CHARS_PATTERN = /[\s,.!?;:'"(){}[\]<>@#$%^&*~`\/\\+=_-]/;
 const BlockableWord = ({
   word,
   isBlocked,
+  isTargetWord,
   toggleBlock,
 }: BlockableWordProps) => {
   const [input, setInput] = useState("");
@@ -53,6 +55,7 @@ const BlockableWord = ({
         className={cn(
           "mr-[4px]",
           isBlocked && "cursor-pointer",
+          isTargetWord && "text-red-600 font-bold",
           correct && "text-green-600 font-bold",
         )}
       >
@@ -96,6 +99,7 @@ const BlockableWord = ({
 export function TextBlocker({ id, text }: TextBlockerProps) {
   const [hideWords, setHideWords] = useState(false);
   const [blocked, setBlocked] = useState<number[]>([]);
+  const [testEnd, setTestEnd] = useState(false);
 
   // 모든 단어를 분리하고 4자 이상인 단어의 인덱스를 찾음
   const words = text.split(/\s+/);
@@ -162,6 +166,7 @@ export function TextBlocker({ id, text }: TextBlockerProps) {
             key={`${word}-${index}`}
             word={word}
             isBlocked={hideWords ? blocked.includes(index) : false}
+            isTargetWord={testEnd && blocked.includes(index)}
             toggleBlock={() => {
               if (hideWords) {
                 toggleBlock(index);
@@ -175,15 +180,46 @@ export function TextBlocker({ id, text }: TextBlockerProps) {
         <Button
           onClick={() => setHideWords(!hideWords)}
           fontSize="15_semibold"
-          variant="orange"
+          variant="skyblue"
         >
-          {hideWords && hiddenWords.length ? "종료" : "시험"}
+          {hideWords && hiddenWords.length && "종료"}
+          {!hideWords && !testEnd && "시험"}
+          {!hideWords && testEnd && "재시험"}
         </Button>
       </div>
 
-      {hideWords && (
+      {hideWords && !testEnd && (
         <>
-          <Timer />
+          <Timer
+            onEnd={() => {
+              setHideWords(false);
+              setTestEnd(true);
+            }}
+          />
+          <div className="flex flex-row flex-wrap gap-2 items-center justify-center">
+            {hiddenWords.map((word, index) => (
+              <Button
+                key={`${word}-${index}`}
+                variant="outline"
+                className="text-gray-600 text-white"
+                onClick={() => toggleBlock(words.indexOf(word))}
+              >
+                {word}
+              </Button>
+            ))}
+          </div>
+        </>
+      )}
+
+      {hideWords && testEnd && (
+        <>
+          <Timer
+            time={30}
+            onEnd={() => {
+              setHideWords(false);
+              setTestEnd(true);
+            }}
+          />
           <div className="flex flex-row flex-wrap gap-2 items-center justify-center">
             {hiddenWords.map((word, index) => (
               <Button
