@@ -1,14 +1,21 @@
 import { GetTodaysReadingByLevelDocument } from "@/graphql/types/graphql";
 import { getClient } from "@/lib/apollo-client/client";
-import { TextBlocker } from "../components/text-blocker";
 import { format } from "date-fns";
 import { Text } from "@/components/ui/text";
+import { TextBlocker } from "@/src/components/text-blocker";
 
-export default async function Home() {
+export default async function Read({ params }: { params: { level: string } }) {
   const { data } = await getClient().query({
     query: GetTodaysReadingByLevelDocument,
     variables: {
-      level: 5,
+      level: +params.level,
+    },
+    context: {
+      fetchOptions: {
+        next: {
+          revalidate: 0,
+        },
+      },
     },
   });
 

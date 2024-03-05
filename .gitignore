@@ -12,6 +12,8 @@
 # next.js
 /.next/
 /out/
+# generated types
+/graphql/types/graphql.tsx
 
 # production
 /build
@@ -35,3 +37,4 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+

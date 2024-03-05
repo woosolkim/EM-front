@@ -8,3 +8,22 @@ query GetTodaysReadingByLevel($level: Int!) {
     topic
   }
 }
+
+mutation CreateReadingMaterial(
+  $level: Int!
+  $topic: String!
+  $charactersCount: Int
+) {
+  createReadingMaterial(
+    level: $level
+    topic: $topic
+    charactersCount: $charactersCount
+  ) {
+    content
+    createdAt
+    from
+    id
+    level
+    topic
+  }
+}
